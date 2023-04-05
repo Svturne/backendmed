@@ -1,5 +1,6 @@
 const Medecin = require("../model/Medecin");
 const client = require("../bd/connect");
+const { ObjectId } = require("mongodb");
 
 const addMedecin = async (req, res) => {
   try {
@@ -18,4 +19,16 @@ const addMedecin = async (req, res) => {
   }
 };
 
-module.exports = { addMedecin };
+const getProfileMedecin = async (req, res) => {
+  try {
+    const id = ObjectId(req.params.id);
+    let result = await client.bd().collection("medecins").findOne({ _id: id });
+    res.status(200).json(result);
+  } catch (error) {
+    console.log("erreur in get profile medecin");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+module.exports = { addMedecin, getProfileMedecin };
