@@ -5,6 +5,7 @@ const addMaladie = async (req, res) => {
   try {
     let maladie = new Maladie({
       patientId: req.body.patientId,
+      createdAt: new Date(),
       maladie: req.body.maladie,
     });
 
