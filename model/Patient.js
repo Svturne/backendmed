@@ -12,7 +12,7 @@ const patientSchema = new mongoose.Schema({
   },
   age: {
     type: Number,
-    required: true,
+    required: true, // TODO: Check Age : 0-100
   },
   sexe: {
     type: String,

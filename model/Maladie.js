@@ -4,7 +4,10 @@ const maladieSchema = new mongoose.Schema({
   maladie: {
     type: String,
     required: true,
-    unique: true,
+  },
+  createdAt: {
+    type: Date,
+    required: true,
   },
   patientId: {
     type: mongoose.SchemaTypes.ObjectId,

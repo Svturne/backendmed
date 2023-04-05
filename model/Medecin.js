@@ -10,6 +10,10 @@ const medecinSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  profilePicture: {
+    type: String,
+    required: true,
+  },
 });
 
 const Medecin = mongoose.model("Medecin", medecinSchema);
