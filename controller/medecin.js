@@ -21,7 +21,7 @@ const addMedecin = async (req, res) => {
 
 const getProfileMedecin = async (req, res) => {
   try {
-    const id = ObjectId(req.params.id);
+    const id = ObjectId(req.params.id); // TODO: get id from token
     let result = await client.bd().collection("medecins").findOne({ _id: id });
     res.status(200).json(result);
   } catch (error) {
