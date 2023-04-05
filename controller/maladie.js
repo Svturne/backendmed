@@ -19,4 +19,16 @@ const addMaladie = async (req, res) => {
   }
 };
 
-module.exports = { addMaladie };
+const getAllMaladie = async (req, res) => {
+  try {
+    const allMaladies = client.bd().collection("maladies").find();
+    const result = await allMaladies.toArray();
+    res.status(200).json(result);
+  } catch (error) {
+    console.log("erreur in get all maladie");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+module.exports = { addMaladie, getAllMaladie };
