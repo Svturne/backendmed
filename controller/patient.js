@@ -3,14 +3,16 @@ const client = require("../bd/connect");
 
 const addPatient = async (req, res) => {
   try {
-    let patient = new Patient(
-      req.body.name,
-      req.body.email,
-      req.body.age,
-      req.body.sexe,
-      req.body.idMedecin
-    );
+    let patient = new Patient({
+      name: req.body.name,
+      email: req.body.email,
+      age: req.body.age,
+      sexe: req.body.sexe,
+      idMedecin: req.body.idMedecin,
+    });
+
     let result = await client.bd().collection("patients").insertOne(patient);
+    console.log("patient added");
     res.status(200).json(result);
   } catch (error) {
     console.log("erreur in add patient");
