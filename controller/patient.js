@@ -58,4 +58,22 @@ const editPatient = async (req, res) => {
     res.status(500).json(error);
   }
 };
-module.exports = { addPatient, deletePatient, editPatient };
+
+const getAllPatient = async (req, res) => {
+  try {
+    const medecinId = ObjectId(req.params.medecinId);
+    const allPatient = client
+      .bd()
+      .collection("patients")
+      .find({ idMedecin: medecinId });
+    const result = await allPatient.toArray();
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.log("erreur in get all Patient");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+module.exports = { addPatient, deletePatient, editPatient, getAllPatient };
