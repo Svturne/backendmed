@@ -31,4 +31,23 @@ const getProfileMedecin = async (req, res) => {
   }
 };
 
-module.exports = { addMedecin, getProfileMedecin };
+const uploadPicture = async (req, res) => {
+  try {
+    const id = ObjectId(req.params.id);
+    let result = await client
+      .bd()
+      .collection("medecins")
+      .findOneAndUpdate(
+        { _id: id },
+        { $set: { profilePicture: req.file.path } },
+        { new: true }
+      );
+    res.status(200).json(result);
+  } catch (error) {
+    console.log("erreur in upload profile picture medecin");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+module.exports = { addMedecin, getProfileMedecin, uploadPicture };
