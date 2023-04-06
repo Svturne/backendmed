@@ -1,6 +1,7 @@
 const Medecin = require("../model/Medecin");
 const client = require("../bd/connect");
 const { ObjectId } = require("mongodb");
+const { baseUrl, port } = require("../constants");
 
 const addMedecin = async (req, res) => {
   try {
@@ -39,10 +40,12 @@ const uploadPicture = async (req, res) => {
       .collection("medecins")
       .findOneAndUpdate(
         { _id: id },
-        { $set: { profilePicture: req.file.path } },
+        {
+          $set: { profilePicture: baseUrl + ":" + port + "/" + req.file.path },
+        },
         { new: true }
       );
-    res.status(200).json(result);
+    res.status(200).json({ message: "image uploaded successfully" });
   } catch (error) {
     console.log("erreur in upload profile picture medecin");
     console.log(error);
