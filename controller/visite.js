@@ -1,6 +1,7 @@
 const Visite = require("../model/Visite");
 const client = require("../bd/connect");
 const { ObjectId } = require("mongodb");
+const { baseUrl, port } = require("../constants");
 
 const addVisite = async (req, res) => {
   try {
@@ -33,4 +34,31 @@ const getVisiteList = async (req, res) => {
   }
 };
 
-module.exports = { addVisite, getVisiteList };
+const uploadPicture = async (req, res) => {
+  console.log("Uploading picture");
+  try {
+    const id = ObjectId(req.params.id);
+    let result = await client
+      .bd()
+      .collection("visites")
+      .findOneAndUpdate(
+        { _id: id },
+        {
+          $push: {
+            pictures: {
+              picture: baseUrl + ":" + port + "/" + req.file.path,
+              date: new Date(),
+            },
+          },
+        },
+        { new: true }
+      );
+    res.status(200).json({ message: " Visite image uploaded successfully" });
+  } catch (error) {
+    console.log("Visite erreur in upload profile picture medecin");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+module.exports = { addVisite, getVisiteList, uploadPicture };

@@ -33,7 +33,7 @@ const getProfileMedecin = async (req, res) => {
 };
 
 const uploadPicture = async (req, res) => {
-  console.log("Uploading picture");
+  console.log("Uploading picture"); //TODO: get id from token
   try {
     const id = ObjectId(req.params.id);
     let result = await client

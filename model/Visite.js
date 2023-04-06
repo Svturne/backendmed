@@ -10,8 +10,7 @@ const visiteSchema = new mongoose.Schema({
     required: true,
   },
   pictures: {
-    type: [String], // TODO: url type
-    required: true,
+    type: [{ picture: String, date: Date }], // TODO: url type
   },
   maladieId: {
     type: mongoose.SchemaTypes.ObjectId,
