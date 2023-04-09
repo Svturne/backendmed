@@ -1,7 +1,6 @@
 const Medecin = require("../model/Medecin");
 const client = require("../bd/connect");
 const { ObjectId } = require("mongodb");
-const { baseUrl, port } = require("../constants");
 
 const addMedecin = async (req, res) => {
   try {
@@ -42,7 +41,14 @@ const uploadPicture = async (req, res) => {
       .findOneAndUpdate(
         { _id: id },
         {
-          $set: { profilePicture: baseUrl + ":" + port + "/" + req.file.path },
+          $set: {
+            profilePicture:
+              process.env.BASEURL +
+              ":" +
+              process.env.PORT +
+              "/" +
+              req.file.path,
+          },
         },
         { new: true }
       );

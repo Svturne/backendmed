@@ -4,7 +4,7 @@ const routePatient = require("./route/patient");
 const routeMedecin = require("./route/medecin");
 const routeVisite = require("./route/visite");
 const routeMaladie = require("./route/maladie");
-const { port } = require("./constants");
+require("dotenv").config();
 
 const app = express();
 
@@ -23,6 +23,7 @@ connecter("mongodb://127.0.0.1:27017/", (erreur) => {
     process.exit(-1);
   } else {
     console.log("Connection a la BDD");
-    app.listen(port);
+
+    app.listen(process.env.PORT);
   }
 });

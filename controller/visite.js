@@ -1,7 +1,6 @@
 const Visite = require("../model/Visite");
 const client = require("../bd/connect");
 const { ObjectId } = require("mongodb");
-const { baseUrl, port } = require("../constants");
 
 const addVisite = async (req, res) => {
   try {
@@ -46,7 +45,12 @@ const uploadPicture = async (req, res) => {
         {
           $push: {
             pictures: {
-              picture: baseUrl + ":" + port + "/" + req.file.path,
+              picture:
+                process.env.BASEURL +
+                ":" +
+                process.env.PORT +
+                "/" +
+                req.file.path,
               date: new Date(),
             },
           },
