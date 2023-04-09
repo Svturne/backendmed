@@ -10,6 +10,10 @@ const medecinSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  password: {
+    type: String,
+    required: true,
+  },
   profilePicture: {
     type: String,
     required: true,
