@@ -268,6 +268,41 @@ const uploadPicture = async (req, res) => {
   }
 };
 
+const changePassword = async (req, res) => {
+  const id = ObjectId(req.user.id);
+  const password = req.body.password;
+  const newPassword = req.body.newPassword;
+
+  const user = await client.bd().collection("medecins").findOne({ _id: id });
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    return res.status(401).json({ message: "password is incorrect" });
+  }
+
+  const salt = await bcrypt.genSalt(parseInt(process.env.SALT));
+
+  const hash = await bcrypt.hash(newPassword, salt);
+
+  await client
+    .bd()
+    .collection("medecins")
+    .findOneAndUpdate(
+      { _id: id },
+      {
+        $set: {
+          password: hash,
+        },
+      },
+      { returnDocument: "after" }
+    );
+
+  await client.bd().collection("tokensMedecin").deleteMany({ medecinId: id });
+
+  res.status(200).json({ message: "updated successfully" });
+};
+
 module.exports = {
   addMedecin,
   getProfileMedecin,
@@ -275,4 +310,5 @@ module.exports = {
   loginMedecin,
   logout,
   refreshToken,
+  changePassword,
 };

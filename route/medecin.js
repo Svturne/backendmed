@@ -8,6 +8,7 @@ const {
 
   logout,
   refreshToken,
+  changePassword,
 } = require("../controller/medecin");
 const { auth } = require("../middleware/medecin");
 const router = express.Router();
@@ -20,6 +21,8 @@ router.route("/medecin/auth").post(auth, (req, res) => {
 });
 
 router.route("/medecin/refreshtoken").post(refreshToken);
+
+router.route("/medecin/newpassword").post(auth, changePassword);
 
 router.route("/medecin/logout").post(logout);
 
