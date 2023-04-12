@@ -32,10 +32,21 @@ const generatedPassword = () => {
 
 const addMedecin = async (req, res) => {
   try {
+    const ownerPassword = req.body.password;
+    if (ownerPassword == "" || !ownerPassword) {
+      return res.status(422).json({ message: "Invalid password" });
+    }
+
+    const isMatch = await bcrypt.compare(ownerPassword, process.env.OWNERPASS);
+    console.log(process.env.OWNERPASS);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Only Owner can create doctors" });
+    }
+
     const email = req.body.email.toLowerCase();
     const name = req.body.name;
     if (email == "" || name == "") {
-      return res.status(422).json({ message: "Invalid email or password" });
+      return res.status(422).json({ message: "Invalid email" });
     }
 
     let findEmail = await client.bd().collection("medecins").findOne({ email });
