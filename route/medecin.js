@@ -6,6 +6,7 @@ const {
   uploadPicture,
   loginMedecin,
   auth,
+  logout,
 } = require("../controller/medecin");
 const router = express.Router();
 
@@ -15,6 +16,7 @@ router.route("/medecin/login").post(loginMedecin);
 router.route("/medecin/auth").post(auth, (req, res) => {
   res.send("Le Token a été authentifié");
 });
+router.route("/medecin/logout").post(logout);
 
 router
   .route("/medecin/:id/picture")

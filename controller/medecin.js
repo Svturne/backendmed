@@ -145,6 +145,13 @@ const loginMedecin = async (req, res) => {
     expiresIn: "7d",
   });
 
+  let token = new Tokens({
+    token: refreshToken,
+    medecinId: result.id,
+  });
+
+  await client.bd().collection("tokens").insertOne(token);
+
   const allData = { accessToken, refreshToken, user: result };
 
   res.status(200).json(allData);
@@ -159,6 +166,24 @@ const getProfileMedecin = async (req, res) => {
     console.log("erreur in get profile medecin");
     console.log(error);
     res.status(500).json(error);
+  }
+};
+
+const logout = async (req, res) => {
+  try {
+    let token = req.headers["authorization"];
+
+    if (token == "" || !token) {
+      res.status(401).json({ message: "token is required" });
+    } else {
+      token = token.split(" ")[1];
+      await client.bd().collection("tokens").deleteOne({ token });
+      return res.status(200).json({ message: "logout successfully" });
+    }
+  } catch (error) {
+    console.log("error in logout");
+    console.log(error);
+    res.status(500).json({ message: "server error" });
   }
 };
 
@@ -197,4 +222,5 @@ module.exports = {
   uploadPicture,
   loginMedecin,
   auth,
+  logout,
 };
