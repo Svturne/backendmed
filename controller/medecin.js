@@ -4,9 +4,19 @@ const { ObjectId } = require("mongodb");
 const transporter = require("../config/sendEmail");
 const generatePassword = require("generate-password");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const Tokens = require("../model/Tokens");
 
 const getHtml = (email, password) => {
-  return `<div> <h1>Création de votre compte sur Med</h1> <p>Votre compte a été créé avec succès. </br>Votre email: ${email} </br> Votre mot de passe: <b>${password}</b></p></div>`;
+  return `<div>
+  <h1>Création de votre compte sur Med</h1>
+  <p>Votre compte a été créé avec succès.</br></br>
+    Votre email: ${email}</br></br>
+    Votre mot de passe: <b>${password}</b>
+  </p>
+  <img src="https://i.postimg.cc/yxpxhHjY/med-icon-modified.png" alt="MED_LOGO">
+</div>
+`;
 };
 
 const generatedPassword = () => {
@@ -49,25 +59,59 @@ const addMedecin = async (req, res) => {
 
     let result = await client.bd().collection("medecins").insertOne(medecin);
 
-    let mailOptions = {
-      from: '"Med" medapplication3@gmail.com',
-      to: req.body.email,
-      subject: "Création de votre compte",
-      text: "",
-      html: getHtml(email, password),
-    };
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return res.status(500).json({ message: "error in sending email" });
-      }
+    const data = { id: result.insertedId, name, email };
+
+    let accessToken = jwt.sign(data, process.env.ACCESSTOKEN, {
+      expiresIn: "90s",
     });
+    let refreshToken = jwt.sign(data, process.env.REFRESHTOKEN, {
+      expiresIn: "7d",
+    });
+
+    let token = new Tokens({
+      token: refreshToken,
+      medecinId: result.insertedId,
+    });
+
+    await client.bd().collection("tokens").insertOne(token);
+
+    // let mailOptions = {
+    //   from: '"Med" medapplication3@gmail.com',
+    //   to: req.body.email,
+    //   subject: "Création de votre compte",
+    //   text: "",
+    //   html: getHtml(email, password),
+    // };
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   if (error) {
+    //     return res.status(500).json({ message: "error in sending email" });
+    //   }
+    // });
+
     console.log("medecin added");
-    res.status(200).json(result);
+    const allData = { accessToken, refreshToken, user: data };
+    res.status(200).json(allData);
   } catch (error) {
     console.log("erreur in add medecin");
     console.log(error);
     res.status(500).json(error);
   }
+};
+
+const auth = async (req, res, next) => {
+  let token = req.headers["authorization"];
+  console.log({ token });
+  token = token.split(" ")[1];
+
+  jwt.verify(token, "access", (err, user) => {
+    if (!err) {
+      req.user = user;
+      next();
+    } else {
+      console.log({ err });
+      return res.status(403).json({ message: "user not authorized" });
+    }
+  });
 };
 
 const loginMedecin = async (req, res) => {
@@ -90,7 +134,20 @@ const loginMedecin = async (req, res) => {
   }
 
   delete result.password;
-  res.status(200).json(result);
+
+  result["id"] = result["_id"];
+  delete result["_id"];
+
+  let accessToken = jwt.sign(result, process.env.ACCESSTOKEN, {
+    expiresIn: "90s",
+  });
+  let refreshToken = jwt.sign(result, process.env.REFRESHTOKEN, {
+    expiresIn: "7d",
+  });
+
+  const allData = { accessToken, refreshToken, user: result };
+
+  res.status(200).json(allData);
 };
 
 const getProfileMedecin = async (req, res) => {
@@ -134,4 +191,10 @@ const uploadPicture = async (req, res) => {
   }
 };
 
-module.exports = { addMedecin, getProfileMedecin, uploadPicture, loginMedecin };
+module.exports = {
+  addMedecin,
+  getProfileMedecin,
+  uploadPicture,
+  loginMedecin,
+  auth,
+};
