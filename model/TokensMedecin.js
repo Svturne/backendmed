@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const tokensSchema = new mongoose.Schema({
+const tokensMedecinSchema = new mongoose.Schema({
   token: {
     type: String,
     required: true,
@@ -19,6 +19,6 @@ const tokensSchema = new mongoose.Schema({
   },
 });
 
-const Tokens = mongoose.model("Tokens", tokensSchema);
+const TokensMedecin = mongoose.model("TokensMedecin", tokensMedecinSchema);
 
-module.exports = Tokens;
+module.exports = TokensMedecin;

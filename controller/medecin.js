@@ -5,7 +5,7 @@ const transporter = require("../config/sendEmail");
 const generatePassword = require("generate-password");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const Tokens = require("../model/Tokens");
+const TokensMedecin = require("../model/TokensMedecin");
 
 const getHtml = (email, password) => {
   return `<div>
@@ -68,12 +68,12 @@ const addMedecin = async (req, res) => {
       expiresIn: "7d",
     });
 
-    let token = new Tokens({
+    let token = new TokensMedecin({
       token: refreshToken,
       medecinId: result.insertedId,
     });
 
-    await client.bd().collection("tokens").insertOne(token);
+    await client.bd().collection("tokensMedecin").insertOne(token);
 
     // let mailOptions = {
     //   from: '"Med" medapplication3@gmail.com',
@@ -98,20 +98,54 @@ const addMedecin = async (req, res) => {
   }
 };
 
-const auth = async (req, res, next) => {
-  let token = req.headers["authorization"];
-  console.log({ token });
-  token = token.split(" ")[1];
+const refreshToken = async (req, res) => {
+  try {
+    let token = req.headers["authorization"];
 
-  jwt.verify(token, "access", (err, user) => {
-    if (!err) {
-      req.user = user;
-      next();
-    } else {
-      console.log({ err });
-      return res.status(403).json({ message: "user not authorized" });
+    if (token == "" || !token) {
+      return res.status(401).json({ message: "token is required" });
     }
-  });
+
+    token = token.split(" ")[1];
+
+    const result = await client
+      .bd()
+      .collection("tokensMedecin")
+      .findOne({ token });
+
+    if (!result) {
+      return res.status(401).json({ message: "token invalide" });
+    }
+
+    const user = await client
+      .bd()
+      .collection("medecins")
+      .findOne({ _id: result.medecinId });
+
+    delete user.password;
+
+    user["id"] = user["_id"];
+    delete user["_id"];
+
+    let accessToken = jwt.sign(user, process.env.ACCESSTOKEN, {
+      expiresIn: "90s",
+    });
+    let refreshToken = jwt.sign(user, process.env.REFRESHTOKEN, {
+      expiresIn: "7d",
+    });
+
+    let newToken = new TokensMedecin({
+      token: refreshToken,
+      medecinId: result.id,
+    });
+
+    await client.bd().collection("tokensMedecin").insertOne(newToken);
+    await client.bd().collection("tokensMedecin").deleteOne({ token });
+
+    const allData = { accessToken, refreshToken, user };
+
+    res.status(200).json(allData);
+  } catch (error) {}
 };
 
 const loginMedecin = async (req, res) => {
@@ -145,12 +179,12 @@ const loginMedecin = async (req, res) => {
     expiresIn: "7d",
   });
 
-  let token = new Tokens({
+  let token = new TokensMedecin({
     token: refreshToken,
     medecinId: result.id,
   });
 
-  await client.bd().collection("tokens").insertOne(token);
+  await client.bd().collection("tokensMedecin").insertOne(token);
 
   const allData = { accessToken, refreshToken, user: result };
 
@@ -159,8 +193,9 @@ const loginMedecin = async (req, res) => {
 
 const getProfileMedecin = async (req, res) => {
   try {
-    const id = ObjectId(req.params.id); // TODO: get id from token
+    const id = ObjectId(req.user.id);
     let result = await client.bd().collection("medecins").findOne({ _id: id });
+    delete result.password;
     res.status(200).json(result);
   } catch (error) {
     console.log("erreur in get profile medecin");
@@ -177,7 +212,7 @@ const logout = async (req, res) => {
       res.status(401).json({ message: "token is required" });
     } else {
       token = token.split(" ")[1];
-      await client.bd().collection("tokens").deleteOne({ token });
+      await client.bd().collection("tokensMedecin").deleteOne({ token });
       return res.status(200).json({ message: "logout successfully" });
     }
   } catch (error) {
@@ -221,6 +256,6 @@ module.exports = {
   getProfileMedecin,
   uploadPicture,
   loginMedecin,
-  auth,
   logout,
+  refreshToken,
 };
