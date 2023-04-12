@@ -8,7 +8,6 @@ const auth = async (req, res, next) => {
   jwt.verify(token, process.env.ACCESSTOKEN, (err, user) => {
     if (!err) {
       req.user = user;
-
       next();
     } else {
       return res.status(403).json({ message: "user not authorized" });

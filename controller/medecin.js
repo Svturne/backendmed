@@ -223,9 +223,9 @@ const logout = async (req, res) => {
 };
 
 const uploadPicture = async (req, res) => {
-  console.log("Uploading picture"); //TODO: get id from token
+  console.log("Uploading picture");
   try {
-    const id = ObjectId(req.params.id);
+    const id = ObjectId(req.user.id);
     let result = await client
       .bd()
       .collection("medecins")

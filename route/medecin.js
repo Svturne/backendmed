@@ -24,7 +24,7 @@ router.route("/medecin/refreshtoken").post(refreshToken);
 router.route("/medecin/logout").post(logout);
 
 router
-  .route("/medecin/:id/picture")
-  .patch(upload.single("picture"), uploadPicture);
+  .route("/medecin/picture")
+  .patch(auth, upload.single("picture"), uploadPicture);
 
 module.exports = router;
