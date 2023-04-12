@@ -112,7 +112,7 @@ const refreshToken = async (req, res) => {
       .bd()
       .collection("tokensMedecin")
       .findOne({ token });
-
+    console.log(result);
     if (!result) {
       return res.status(401).json({ message: "token invalide" });
     }
@@ -136,7 +136,7 @@ const refreshToken = async (req, res) => {
 
     let newToken = new TokensMedecin({
       token: refreshToken,
-      medecinId: result.id,
+      medecinId: result.medecinId,
     });
 
     await client.bd().collection("tokensMedecin").insertOne(newToken);
