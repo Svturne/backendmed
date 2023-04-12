@@ -9,12 +9,12 @@ const addPatient = async (req, res) => {
       email: req.body.email,
       age: req.body.age,
       sexe: req.body.sexe,
-      idMedecin: req.body.idMedecin,
+      idMedecin: req.user.id,
     });
 
-    let result = await client.bd().collection("patients").insertOne(patient);
-    console.log("patient added");
-    res.status(200).json(result);
+    await client.bd().collection("patients").insertOne(patient);
+
+    res.status(200).json({ message: "patient created successfully" });
   } catch (error) {
     console.log("erreur in add patient");
     console.log(error);
@@ -29,6 +29,7 @@ const deletePatient = async (req, res) => {
       .bd()
       .collection("patients")
       .deleteOne({ _id: id });
+
     res.status(200).json(result);
   } catch (error) {
     console.log("erreur delete patient");
