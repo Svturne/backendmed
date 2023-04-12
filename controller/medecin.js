@@ -252,9 +252,15 @@ const uploadPicture = async (req, res) => {
               req.file.path,
           },
         },
-        { new: true }
+        { returnDocument: "after" }
       );
-    res.status(200).json({ message: "image uploaded successfully" });
+
+    delete result.value.password;
+
+    result.value["id"] = result.value["_id"];
+    delete result.value["_id"];
+
+    res.status(200).json({ user: result.value });
   } catch (error) {
     console.log("erreur in upload profile picture medecin");
     console.log(error);
