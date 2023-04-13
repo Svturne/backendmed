@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const tokensMedecinSchema = new mongoose.Schema({
+let tokensMedecinSchema = new mongoose.Schema({
   token: {
     type: String,
     required: true,
@@ -13,12 +13,11 @@ const tokensMedecinSchema = new mongoose.Schema({
 
   createdAt: {
     type: Date,
-    required: true,
-    default: Date.now(),
-    expires: 7200,
+    default: new Date(),
   },
 });
+tokensMedecinSchema.index({ createdAt: 1 }, { expireAfterSeconds: 180 }); //30days * 24hours * 60 minutes * 60 seconds
 
-const TokensMedecin = mongoose.model("TokensMedecin", tokensMedecinSchema);
+let TokensMedecin = mongoose.model("TokensMedecin", tokensMedecinSchema);
 
 module.exports = TokensMedecin;

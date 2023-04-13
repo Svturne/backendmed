@@ -1,6 +1,8 @@
 const Patient = require("../model/Patient");
 const client = require("../bd/connect");
 const { ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
+const QRCode = require("qrcode");
 
 const addPatient = async (req, res) => {
   try {
@@ -14,6 +16,7 @@ const addPatient = async (req, res) => {
 
     await client.bd().collection("patients").insertOne(patient);
 
+    sendQr(patient);
     res.status(200).json({ message: "patient created successfully" });
   } catch (error) {
     console.log("erreur in add patient");
@@ -75,6 +78,18 @@ const getAllPatient = async (req, res) => {
     console.log(error);
     res.status(500).json(error);
   }
+};
+
+const sendQr = async (patient) => {
+  const refresh = jwt.sign(patient.toJSON(), process.env.REFRESHTOKENPATIENT, {
+    expiresIn: "365d",
+  });
+
+  const url = new URL("med://token=" + refresh);
+
+  QRCode.toDataURL(url, function (err, url) {
+    console.log(url);
+  });
 };
 
 module.exports = { addPatient, deletePatient, editPatient, getAllPatient };
