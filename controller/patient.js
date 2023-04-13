@@ -5,10 +5,10 @@ const jwt = require("jsonwebtoken");
 const QRCode = require("qrcode");
 const transporter = require("../config/sendEmail");
 
-const getHtml = (qrimage) => {
+const getHtml = (qrimage, doctorname) => {
   return `<div>
   <h1>Création de votre compte sur Med</h1>
-  <p>Votre compte a été créé avec succès.</br></br>
+  <p>Votre compte a été créé par le docteur ${doctorname}.</br></br>
    
   </p>
   <img src= ${qrimage} alt="MED_LOGO">
@@ -28,7 +28,7 @@ const addPatient = async (req, res) => {
 
     await client.bd().collection("patients").insertOne(patient);
 
-    sendQr(patient);
+    sendQr(patient, req.user.name);
     res.status(200).json({ message: "patient created successfully" });
   } catch (error) {
     console.log("erreur in add patient");
@@ -92,38 +92,28 @@ const getAllPatient = async (req, res) => {
   }
 };
 
-const sendQr = async (patient) => {
+const sendQr = async (patient, doctorname) => {
   const refresh = jwt.sign(patient.toJSON(), process.env.REFRESHTOKENPATIENT, {
     expiresIn: "365d",
   });
 
   const url = new URL("med://token=" + refresh);
 
-  QRCode.toString(
-    url.href,
-    {
-      errorCorrectionLevel: "H",
-      type: "png",
-      width: "50",
-    },
-    function (err, data) {
-      if (err) throw err;
+  let qrImage = await QRCode.toDataURL(url.href);
 
-      // let mailOptions = {
-      //   from: '"Med" medapplication3@gmail.com',
-      //   to: "mehdi.bad@outlook.com",
-      //   subject: "Création de votre compte",
-      //   text: "",
-      //   html: getHtml(data),
-      // };
-      // transporter.sendMail(mailOptions, (error, info) => {
-      //   if (error) {
-      //     return res.status(500).json({ message: "error in sending email" });
-      //   }
-      // });
-      console.log(data);
+  let mailOptions = {
+    from: '"Med" medapplication3@gmail.com',
+    to: patient.email,
+    subject: "Création de votre compte",
+    text: "",
+    attachDataUrls: true,
+    html: getHtml(qrImage, doctorname),
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).json({ message: "error in sending email" });
     }
-  );
+  });
 };
 
 module.exports = { addPatient, deletePatient, editPatient, getAllPatient };
