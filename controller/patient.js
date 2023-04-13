@@ -3,6 +3,18 @@ const client = require("../bd/connect");
 const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const QRCode = require("qrcode");
+const transporter = require("../config/sendEmail");
+
+const getHtml = (qrimage) => {
+  return `<div>
+  <h1>Création de votre compte sur Med</h1>
+  <p>Votre compte a été créé avec succès.</br></br>
+   
+  </p>
+  <img src= ${qrimage} alt="MED_LOGO">
+</div>
+`;
+};
 
 const addPatient = async (req, res) => {
   try {
@@ -87,9 +99,31 @@ const sendQr = async (patient) => {
 
   const url = new URL("med://token=" + refresh);
 
-  QRCode.toDataURL(url, function (err, url) {
-    console.log(url);
-  });
+  QRCode.toString(
+    url.href,
+    {
+      errorCorrectionLevel: "H",
+      type: "png",
+      width: "50",
+    },
+    function (err, data) {
+      if (err) throw err;
+
+      // let mailOptions = {
+      //   from: '"Med" medapplication3@gmail.com',
+      //   to: "mehdi.bad@outlook.com",
+      //   subject: "Création de votre compte",
+      //   text: "",
+      //   html: getHtml(data),
+      // };
+      // transporter.sendMail(mailOptions, (error, info) => {
+      //   if (error) {
+      //     return res.status(500).json({ message: "error in sending email" });
+      //   }
+      // });
+      console.log(data);
+    }
+  );
 };
 
 module.exports = { addPatient, deletePatient, editPatient, getAllPatient };
