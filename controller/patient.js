@@ -4,12 +4,23 @@ const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const QRCode = require("qrcode");
 const transporter = require("../config/sendEmail");
+const TokensPatient = require("../model/TokensPatients");
 
 const getHtml = (qrimage, doctorname) => {
   return `<div>
   <h1>Création de votre compte sur Med</h1>
   <p>Votre compte a été créé par le docteur ${doctorname}.</br></br>
    
+  </p>
+  <img src= ${qrimage} alt="MED_LOGO">
+</div>
+`;
+};
+
+const resendHtml = (qrimage) => {
+  return `<div>
+  <h1>Voici votre code QR</h1>
+
   </p>
   <img src= ${qrimage} alt="MED_LOGO">
 </div>
@@ -26,9 +37,9 @@ const addPatient = async (req, res) => {
       idMedecin: req.user.id,
     });
 
-    await client.bd().collection("patients").insertOne(patient);
-
-    sendQr(patient, req.user.name);
+    const result = await client.bd().collection("patients").insertOne(patient);
+    console.log(result);
+    sendQr(patient);
     res.status(200).json({ message: "patient created successfully" });
   } catch (error) {
     console.log("erreur in add patient");
@@ -97,23 +108,30 @@ const sendQr = async (patient, doctorname) => {
     expiresIn: "365d",
   });
 
+  let token = new TokensPatient({
+    token: refresh,
+    patientId: new ObjectId(patient.id),
+  });
+
+  await client.bd().collection("tokensPatient").insertOne(token);
+
   const url = new URL("med://token=" + refresh);
 
   let qrImage = await QRCode.toDataURL(url.href);
 
-  let mailOptions = {
-    from: '"Med" medapplication3@gmail.com',
-    to: patient.email,
-    subject: "Création de votre compte",
-    text: "",
-    attachDataUrls: true,
-    html: getHtml(qrImage, doctorname),
-  };
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return res.status(500).json({ message: "error in sending email" });
-    }
-  });
+  // let mailOptions = {
+  //   from: '"Med" medapplication3@gmail.com',
+  //   to: patient.email,
+  //   subject: "Création de votre compte",
+  //   text: "",
+  //   attachDataUrls: true,
+  //   html: doctorname ? getHtml(qrImage, doctorname) : resendHtml(qrImage),
+  // };
+  // transporter.sendMail(mailOptions, (error, info) => {
+  //   if (error) {
+  //     return res.status(500).json({ message: "error in sending email" });
+  //   }
+  //});
 };
 
 module.exports = { addPatient, deletePatient, editPatient, getAllPatient };
