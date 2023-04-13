@@ -4,6 +4,7 @@ const routePatient = require("./route/patient");
 const routeMedecin = require("./route/medecin");
 const routeVisite = require("./route/visite");
 const routeMaladie = require("./route/maladie");
+const routePatientOperation = require("./route/patientOperation");
 require("dotenv").config();
 
 const app = express();
@@ -16,6 +17,7 @@ app.use("/api", routePatient);
 app.use("/api", routeMedecin);
 app.use("/api", routeVisite);
 app.use("/api", routeMaladie);
+app.use("/api", routePatientOperation);
 
 connecter("mongodb://127.0.0.1:27017/", (erreur) => {
   if (erreur) {
