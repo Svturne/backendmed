@@ -26,6 +26,11 @@ const medecinSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  codeResetPassword: {
+    type: Number,
+    default: 0,
+    required: true,
+  },
 });
 
 const Medecin = mongoose.model("Medecin", medecinSchema);

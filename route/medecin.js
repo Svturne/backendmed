@@ -9,19 +9,19 @@ const {
   logout,
   refreshToken,
   changePassword,
+  sendCodePassword,
 } = require("../controller/medecin");
-const { auth } = require("../middleware/medecin");
+const { auth, checkEmail } = require("../middleware/medecin");
 const router = express.Router();
 
 router.route("/medecin").post(addMedecin);
 router.route("/medecin").get(auth, getProfileMedecin);
 router.route("/medecin/login").post(loginMedecin);
-
 router.route("/medecin/refreshtoken").post(refreshToken);
-
 router.route("/medecin/newpassword").post(auth, changePassword);
-
 router.route("/medecin/logout").post(logout);
+
+router.route("/medecin/sendcode").post(sendCodePassword);
 
 router
   .route("/medecin/picture")

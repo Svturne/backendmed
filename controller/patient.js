@@ -9,10 +9,10 @@ const TokensPatient = require("../model/TokensPatients");
 const getHtml = (qrimage, doctorname) => {
   return `<div>
   <h1>Création de votre compte sur Med</h1>
-  <p>Votre compte a été créé par le docteur ${doctorname}.</br></br>
-   
-  </p>
+  <p>Votre compte a été créé par le docteur ${doctorname}.</br></br></p>
   <img src= ${qrimage} alt="MED_LOGO">
+  <p>Scannez ce code a l'aide de l'application afin de pouvoir accéder à votre profil.</p>
+  <p>(Ce code est scannable qu'une seule fois)</p>
 </div>
 `;
 };
@@ -20,9 +20,10 @@ const getHtml = (qrimage, doctorname) => {
 const resendHtml = (qrimage) => {
   return `<div>
   <h1>Voici votre code QR</h1>
-
   </p>
   <img src= ${qrimage} alt="MED_LOGO">
+  <p>Scannez ce code a l'aide de l'application afin de pouvoir accéder à votre profil.</p>
+  <p>(Ce code est scannable qu'une seule fois)</p>
 </div>
 `;
 };
@@ -38,8 +39,9 @@ const addPatient = async (req, res) => {
     });
 
     const result = await client.bd().collection("patients").insertOne(patient);
-    console.log(result);
-    sendQr(patient);
+
+    sendQr(patient, req.user.name);
+
     res.status(200).json({ message: "patient created successfully" });
   } catch (error) {
     console.log("erreur in add patient");
@@ -117,7 +119,11 @@ const sendQr = async (patient, doctorname) => {
 
   const url = new URL("med://token=" + refresh);
 
-  let qrImage = await QRCode.toDataURL(url.href);
+  let qrImage = await QRCode.toDataURL(url.href, {
+    width: 250,
+    height: 250,
+    color: { light: "#7FA1D8" },
+  });
 
   // let mailOptions = {
   //   from: '"Med" medapplication3@gmail.com',

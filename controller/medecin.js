@@ -303,6 +303,45 @@ const changePassword = async (req, res) => {
   res.status(200).json({ message: "updated successfully" });
 };
 
+const sendCodePassword = async (req, res) => {
+  try {
+    const email = req.body.email;
+    let result = await client.bd().collection("medecins").findOne({ email });
+    if (!result) {
+      res.status(200).json({ message: "no profile with this email" });
+    } else {
+      delete result.password;
+
+      const id = result._id;
+      const code = Math.floor(1000 + Math.random() * 9000);
+
+      await client
+        .bd()
+        .collection("medecins")
+        .findOneAndUpdate(
+          { email },
+          {
+            $set: {
+              codeResetPassword: code,
+            },
+          },
+          { returnDocument: "after" }
+        );
+
+      await client
+        .bd()
+        .collection("tokensMedecin")
+        .deleteMany({ medecinId: id });
+
+      res.status(200).json({ message: "updated successfully" });
+    }
+  } catch (error) {
+    console.log("erreur in update code for password");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
 module.exports = {
   addMedecin,
   getProfileMedecin,
@@ -311,4 +350,5 @@ module.exports = {
   logout,
   refreshToken,
   changePassword,
+  sendCodePassword,
 };
