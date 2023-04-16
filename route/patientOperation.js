@@ -3,11 +3,25 @@ const {
   logout,
   getProfilePatient,
   refreshPatient,
+  getMaladies,
+  getVisite,
 } = require("../controller/patientOperation");
-const { patientFirstAuth, patientAuth } = require("../middleware/patientUser");
+const {
+  patientFirstAuth,
+  patientAuth,
+  patientVerifaction,
+} = require("../middleware/patientUser");
 const router = express.Router();
 
-router.route("/patient/refresh").post(patientFirstAuth, refreshPatient);
-router.route("/patient/logout").post(logout);
-router.route("/patient").get(patientAuth, getProfilePatient);
+router.route("/patient/user/refresh").post(patientFirstAuth, refreshPatient);
+router.route("/patient/user/logout").post(logout);
+router.route("/patient/user").get(patientAuth, getProfilePatient);
+
+router.route("/patient/user/allmaladie").get(patientAuth, getMaladies);
+
+router.route("/patient/user/allmaladie").get(patientAuth, getMaladies);
+router
+  .route("/patient/user/allvisite/:id")
+  .get(patientAuth, patientVerifaction, getVisite);
+
 module.exports = router;

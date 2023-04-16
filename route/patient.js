@@ -11,6 +11,6 @@ const router = express.Router();
 
 router.route("/patient").post(auth, addPatient);
 router.route("/patient/:id").delete(auth, isMedecinperm, deletePatient);
-router.route("/patient/:id").put(editPatient);
-router.route("/patient/:medecinId").get(getAllPatient);
+router.route("/patient/:id").put(auth, isMedecinperm, editPatient);
+router.route("/patient/:medecinId").get(auth, isMedecinperm, getAllPatient);
 module.exports = router;

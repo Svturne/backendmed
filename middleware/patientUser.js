@@ -1,5 +1,7 @@
 const jwt = require("jsonwebtoken");
+const { ObjectId } = require("mongodb");
 const client = require("../bd/connect");
+const collections = require("../constants/collections");
 
 const patientFirstAuth = async (req, res, next) => {
   let token = req.headers["authorization"];
@@ -12,7 +14,6 @@ const patientFirstAuth = async (req, res, next) => {
     .bd()
     .collection("tokensPatient")
     .findOne({ token });
-  console.log(result);
 
   if (!result) {
     return res.status(401).json({ message: "token invalide" });
@@ -45,4 +46,24 @@ const patientAuth = async (req, res, next) => {
   });
 };
 
-module.exports = { patientFirstAuth, patientAuth };
+const patientVerifaction = async (req, res, next) => {
+  const patientId = ObjectId(req.user._id);
+
+  const maladieId = new ObjectId(req.params.id);
+
+  const resultBdd = await client.bd().collection("maladies").findOne({
+    _id: maladieId,
+  });
+
+  if (!resultBdd) {
+    return res.status(404).json({ message: "maladie not found" });
+  }
+
+  if (patientId.equals(resultBdd.patientId)) {
+    next();
+  } else {
+    res.status(401).json({ message: "not authorized to see this maladie" });
+  }
+};
+
+module.exports = { patientFirstAuth, patientAuth, patientVerifaction };
