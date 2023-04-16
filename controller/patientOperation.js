@@ -27,9 +27,8 @@ const refreshPatient = async (req, res) => {
     .deleteMany({ patientId: new ObjectId(req.user._id) });
 
   await client.bd().collection("tokensPatient").insertOne(token);
-  const user = req.user;
-  console.log({ accessToken, refreshToken, user });
-  res.status(200).json({ message: "token updated" });
+
+  res.status(200).json({ accessToken, refreshToken, user: req.user });
 };
 
 const logout = async (req, res) => {
