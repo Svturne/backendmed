@@ -38,7 +38,7 @@ const addPatient = async (req, res) => {
       idMedecin: req.user.id,
     });
 
-    const result = await client.bd().collection("patients").insertOne(patient);
+    await client.bd().collection("patients").insertOne(patient);
 
     sendQr(patient, req.user.name);
 
