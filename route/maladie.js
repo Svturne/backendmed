@@ -5,10 +5,11 @@ const {
   updateMaladie,
 } = require("../controller/maladie");
 const { auth } = require("../middleware/medecin");
+const { isMedecinperm } = require("../middleware/patient");
 const router = express.Router();
 
 router.route("/maladie").post(auth, addMaladie);
-router.route("/maladie").get(auth, getAllMaladie);
-router.route("/maladie/:id").put(auth, updateMaladie);
+router.route("/maladie").get(auth, isMedecinperm, getAllMaladie);
+router.route("/maladie/:id").put(auth, isMedecinperm, updateMaladie);
 
 module.exports = router;

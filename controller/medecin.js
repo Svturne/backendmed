@@ -14,7 +14,7 @@ const getHtml = (email, password) => {
     Votre email: ${email}</br></br>
     Votre mot de passe: <b>${password}</b>
   </p>
-  <img src="https://i.postimg.cc/yxpxhHjY/med-icon-modified.png" alt="MED_LOGO">
+  <img src="https://i.postimg.cc/yxpxhHjY/med-icon-modified.png" alt="MED_LOGO" width="250" height="250">
 </div>
 `;
 };
@@ -28,6 +28,17 @@ const generatedPassword = () => {
     excludeSimilarCharacters: parseInt(process.env.EXCLUDESIMILARCHARACTERS),
   });
   return password;
+};
+
+const getHtmlCode = (code) => {
+  return `<div>
+  <h1>Code de vérification</h1>
+  <p>Voici votre code de vérification:</br></br>
+    ${code}</br></br>
+  </p>
+  <img src="https://i.postimg.cc/yxpxhHjY/med-icon-modified.png" alt="MED_LOGO" width="250" height="250">
+</div>
+`;
 };
 
 const addMedecin = async (req, res) => {
@@ -68,40 +79,22 @@ const addMedecin = async (req, res) => {
       password: hash,
     });
 
-    let result = await client.bd().collection("medecins").insertOne(medecin);
+    await client.bd().collection("medecins").insertOne(medecin);
 
-    const data = { id: result.insertedId, name, email };
-
-    let accessToken = jwt.sign(data, process.env.ACCESSTOKEN, {
-      expiresIn: "90s",
+    let mailOptions = {
+      from: '"Med" medapplication3@gmail.com',
+      to: req.body.email,
+      subject: "Création de votre compte",
+      text: "",
+      html: getHtml(email, password),
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).json({ message: "error in sending email" });
+      }
     });
-    let refreshToken = jwt.sign(data, process.env.REFRESHTOKEN, {
-      expiresIn: "7d",
-    });
 
-    let token = new TokensMedecin({
-      token: refreshToken,
-      medecinId: result.insertedId,
-    });
-
-    await client.bd().collection("tokensMedecin").insertOne(token);
-
-    // let mailOptions = {
-    //   from: '"Med" medapplication3@gmail.com',
-    //   to: req.body.email,
-    //   subject: "Création de votre compte",
-    //   text: "",
-    //   html: getHtml(email, password),
-    // };
-    // transporter.sendMail(mailOptions, (error, info) => {
-    //   if (error) {
-    //     return res.status(500).json({ message: "error in sending email" });
-    //   }
-    // });
-
-    console.log("medecin added");
-    const allData = { accessToken, refreshToken, user: data };
-    res.status(200).json(allData);
+    res.status(200).json({ message: "medecin added" });
   } catch (error) {
     console.log("erreur in add medecin");
     console.log(error);
@@ -305,10 +298,10 @@ const changePassword = async (req, res) => {
 
 const sendCodePassword = async (req, res) => {
   try {
-    const email = req.body.email;
+    const email = req.body.email.toLowerCase();
     let result = await client.bd().collection("medecins").findOne({ email });
     if (!result) {
-      res.status(200).json({ message: "no profile with this email" });
+      res.status(404).json({ message: "no profile with this email" });
     } else {
       delete result.password;
 
@@ -333,12 +326,92 @@ const sendCodePassword = async (req, res) => {
         .collection("tokensMedecin")
         .deleteMany({ medecinId: id });
 
-      res.status(200).json({ message: "updated successfully" });
+      let mailOptions = {
+        from: '"Med" medapplication3@gmail.com',
+        to: req.body.email,
+        subject: "Code de vérification",
+        text: "",
+        html: getHtmlCode(code),
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return res.status(500).json({ message: "error in sending email" });
+        }
+      });
+
+      res.status(200).json({ message: "code has been sent to your email" });
     }
   } catch (error) {
     console.log("erreur in update code for password");
     console.log(error);
     res.status(500).json(error);
+  }
+};
+
+const checkCode = async (req, res) => {
+  try {
+    const email = req.body.email.toLowerCase();
+    const userCode = parseInt(req.body.code);
+
+    const user = await client.bd().collection("medecins").findOne({ email });
+
+    if (!user.codeResetPassword) {
+      res.status(400).json({ message: "repeat the process" });
+    }
+
+    if (!userCode) {
+      res.status(400).json({ message: "send your code" });
+    }
+
+    if (user.codeResetPassword == userCode) {
+      res.status(200).json({ message: "Approved" });
+    } else {
+      res.status(422).json({ message: "wrong code" });
+    }
+  } catch (error) {
+    console.log("error in checkCode");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const email = req.body.email.toLowerCase();
+    const code = req.body.code;
+    const password = req.body.password;
+
+    const result = await client.bd().collection("medecins").findOne({ email });
+    if (!result) {
+      return res.status(404).json({ message: "user not found" });
+    }
+
+    if (result.codeResetPassword != code) {
+      return res.status(404).json({ message: "not found" });
+    }
+
+    const salt = await bcrypt.genSalt(parseInt(process.env.SALT));
+
+    const hash = await bcrypt.hash(password, salt);
+
+    client
+      .bd()
+      .collection("medecins")
+      .findOneAndUpdate(
+        { email },
+        {
+          $set: {
+            password: hash,
+            codeResetPassword: null,
+          },
+        },
+        { returnDocument: "after" }
+      );
+    res.status(200).json({ message: "password updated successfully" });
+  } catch (error) {
+    console.log("erreur in resetPassword");
+    console.log(error);
+    res.status(500).json({ message: "erreur in resetPassword" });
   }
 };
 
@@ -351,4 +424,6 @@ module.exports = {
   refreshToken,
   changePassword,
   sendCodePassword,
+  checkCode,
+  resetPassword,
 };

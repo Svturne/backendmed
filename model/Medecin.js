@@ -28,7 +28,7 @@ const medecinSchema = new mongoose.Schema({
   },
   codeResetPassword: {
     type: Number,
-    default: 0,
+    default: null,
     required: true,
   },
 });

@@ -5,12 +5,14 @@ const {
   getVisiteList,
   uploadPicture,
 } = require("../controller/visite");
+const { auth } = require("../middleware/medecin");
+const { isMedecinperm } = require("../middleware/patient");
 const router = express.Router();
 
-router.route("/visite").post(addVisite);
-router.route("/visite/:id").get(getVisiteList);
+router.route("/visite").post(auth, isMedecinperm, addVisite);
+router.route("/visite/:id").get(auth, getVisiteList);
 router
   .route("/visite/:id/picture")
-  .patch(upload.single("picture"), uploadPicture);
+  .patch(auth, upload.single("picture"), isMedecinperm, uploadPicture);
 
 module.exports = router;
