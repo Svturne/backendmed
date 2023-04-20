@@ -105,8 +105,26 @@ const getAllPatient = async (req, res) => {
   }
 };
 
+const reSendQr = async (req, res) => {
+  try {
+    let patient = {
+      name: req.body.name,
+      email: req.body.email,
+      age: req.body.age,
+      sexe: req.body.sexe,
+      idMedecin: req.user.id,
+    };
+    sendQr(patient);
+    res.status(200).json({ message: "code qr sended" });
+  } catch (error) {
+    console.log("erreur in reSendQr");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
 const sendQr = async (patient, doctorname) => {
-  const refresh = jwt.sign(patient.toJSON(), process.env.REFRESHTOKENPATIENT, {
+  const refresh = jwt.sign({ patient }, process.env.REFRESHTOKENPATIENT, {
     expiresIn: "365d",
   });
 
@@ -125,19 +143,25 @@ const sendQr = async (patient, doctorname) => {
     color: { light: "#7FA1D8" },
   });
 
-  // let mailOptions = {
-  //   from: '"Med" medapplication3@gmail.com',
-  //   to: patient.email,
-  //   subject: "Création de votre compte",
-  //   text: "",
-  //   attachDataUrls: true,
-  //   html: doctorname ? getHtml(qrImage, doctorname) : resendHtml(qrImage),
-  // };
-  // transporter.sendMail(mailOptions, (error, info) => {
-  //   if (error) {
-  //     return res.status(500).json({ message: "error in sending email" });
-  //   }
-  //});
+  let mailOptions = {
+    from: '"Med" medapplication3@gmail.com',
+    to: patient.email,
+    subject: "Création de votre compte",
+    text: "",
+    attachDataUrls: true,
+    html: doctorname ? getHtml(qrImage, doctorname) : resendHtml(qrImage),
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).json({ message: "error in sending email" });
+    }
+  });
 };
 
-module.exports = { addPatient, deletePatient, editPatient, getAllPatient };
+module.exports = {
+  addPatient,
+  deletePatient,
+  editPatient,
+  getAllPatient,
+  reSendQr,
+};
