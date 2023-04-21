@@ -5,9 +5,13 @@ const visiteSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  desc: {
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
-    required: true,
+    default: new Date(),
   },
   pictures: {
     type: [{ picture: String, date: Date }], // TODO: url type

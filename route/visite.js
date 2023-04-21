@@ -9,7 +9,7 @@ const { auth } = require("../middleware/medecin");
 const { isMedecinperm } = require("../middleware/patient");
 const router = express.Router();
 
-router.route("/visite").post(auth, isMedecinperm, addVisite);
+router.route("/visite").post(auth, addVisite);
 router.route("/visite/:id").get(auth, getVisiteList);
 router
   .route("/visite/:id/picture")

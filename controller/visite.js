@@ -7,6 +7,7 @@ const addVisite = async (req, res) => {
     let visite = new Visite({
       maladieId: req.body.maladieId,
       remarque: req.body.remarque,
+      desc: req.body.desc,
       pictures: req.body.pictures,
     });
 

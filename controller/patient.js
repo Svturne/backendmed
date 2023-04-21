@@ -105,6 +105,26 @@ const getAllPatient = async (req, res) => {
   }
 };
 
+const getMaladiesDoctor = async (req, res) => {
+  try {
+    const id = ObjectId(req.params.patientId);
+
+    let allMaladie = await client
+      .bd()
+      .collection("maladies")
+      .find({ patientId: id });
+
+    const result = await allMaladie.toArray();
+    if (!result) {
+      res.status(404).json({ message: "Not Found maladie for this patient" });
+    } else {
+      res.status(200).json(result);
+    }
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
 const reSendQr = async (req, res) => {
   try {
     let patient = {
@@ -163,5 +183,6 @@ module.exports = {
   deletePatient,
   editPatient,
   getAllPatient,
+  getMaladiesDoctor,
   reSendQr,
 };
