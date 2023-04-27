@@ -38,7 +38,7 @@ const uploadPicture = async (req, res) => {
   console.log("Uploading picture");
   try {
     const id = ObjectId(req.params.id);
-    let result = await client
+    await client
       .bd()
       .collection("visites")
       .findOneAndUpdate(
@@ -52,6 +52,7 @@ const uploadPicture = async (req, res) => {
                 process.env.PORT +
                 "/" +
                 req.file.path,
+              description: req.body.description,
               date: new Date(),
             },
           },

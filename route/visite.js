@@ -13,6 +13,6 @@ router.route("/visite").post(auth, addVisite);
 router.route("/visite/:id").get(auth, getVisiteList);
 router
   .route("/visite/:id/picture")
-  .patch(auth, upload.single("picture"), isMedecinperm, uploadPicture);
+  .patch(auth, upload.single("picture"), uploadPicture);
 
 module.exports = router;
