@@ -237,7 +237,7 @@ const uploadPicture = async (req, res) => {
         {
           $set: {
             profilePicture:
-              process.env.BASEURL +
+              process.env.IPADDRESS +
               ":" +
               process.env.PORT +
               "/" +
