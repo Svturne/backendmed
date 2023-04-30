@@ -156,7 +156,8 @@ const sendQr = async (patient, doctorname) => {
   await client.bd().collection("tokensPatient").insertOne(token);
 
   const url = new URL("med://token=" + refresh);
-  console.log(url);
+  console.log(url.href);
+
   let qrImage = await QRCode.toDataURL(url.href, {
     width: 250,
     height: 250,

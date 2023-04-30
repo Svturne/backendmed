@@ -51,7 +51,8 @@ const logout = async (req, res) => {
 
 const getProfilePatient = async (req, res) => {
   try {
-    const id = ObjectId(req.user._id);
+    const id = ObjectId(req.user.patient._id);
+
     let result = await client.bd().collection("patients").findOne({ _id: id });
     delete result.password;
     res.status(200).json(result);
@@ -64,7 +65,7 @@ const getProfilePatient = async (req, res) => {
 
 const getMaladies = async (req, res) => {
   try {
-    const id = ObjectId(req.user._id);
+    const id = ObjectId(req.user.patient._id);
 
     let allMaladie = await client
       .bd()

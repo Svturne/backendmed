@@ -39,9 +39,10 @@ const patientAuth = async (req, res, next) => {
   jwt.verify(token, process.env.ACCESSTOKENPATIENT, (err, user) => {
     if (!err) {
       req.user = user;
+      console.log({ user });
       next();
     } else {
-      return res.status(403).json({ message: "user not authorized" });
+      return res.status(403).json({ message: "user not authorized " });
     }
   });
 };
