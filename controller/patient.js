@@ -90,7 +90,7 @@ const editPatient = async (req, res) => {
 
 const getAllPatient = async (req, res) => {
   try {
-    const medecinId = ObjectId(req.params.medecinId);
+    const medecinId = ObjectId(req.user.id);
     const allPatient = client
       .bd()
       .collection("patients")
@@ -156,7 +156,7 @@ const sendQr = async (patient, doctorname) => {
   await client.bd().collection("tokensPatient").insertOne(token);
 
   const url = new URL("med://token=" + refresh);
-
+  console.log(url);
   let qrImage = await QRCode.toDataURL(url.href, {
     width: 250,
     height: 250,

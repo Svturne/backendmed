@@ -46,8 +46,8 @@ const uploadPicture = async (req, res) => {
         {
           $push: {
             pictures: {
-              picture:
-                process.env.BASEURL +
+              uri:
+                process.env.IPADDRESS +
                 ":" +
                 process.env.PORT +
                 "/" +
