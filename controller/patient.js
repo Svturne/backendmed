@@ -128,7 +128,7 @@ const getMaladiesDoctor = async (req, res) => {
 const reSendQr = async (req, res) => {
   try {
     let patient = {
-      name: req.body.name,
+      name: req.body.name, //TODO: Check ID
       email: req.body.email,
       age: req.body.age,
       sexe: req.body.sexe,
@@ -155,7 +155,7 @@ const sendQr = async (patient, doctorname) => {
 
   await client.bd().collection("tokensPatient").insertOne(token);
 
-  const url = new URL("med://token=" + refresh);
+  const url = new URL("med:/patient/?token=" + refresh);
   console.log(url.href);
 
   let qrImage = await QRCode.toDataURL(url.href, {

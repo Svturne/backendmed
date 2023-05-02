@@ -49,11 +49,8 @@ const patientAuth = async (req, res, next) => {
 
 const patientVerifaction = async (req, res, next) => {
   const patientId = ObjectId(req.user._id);
-
-  const maladieId = new ObjectId(req.params.id);
-
   const resultBdd = await client.bd().collection("maladies").findOne({
-    _id: maladieId,
+    patientId,
   });
 
   if (!resultBdd) {

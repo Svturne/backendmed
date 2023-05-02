@@ -149,7 +149,11 @@ const refreshToken = async (req, res) => {
     const allData = { accessToken, refreshToken, user };
 
     res.status(200).json(allData);
-  } catch (error) {}
+  } catch (error) {
+    console.log("error in refresh token medecin");
+    console.log(error);
+    res.status(500).json({ message: "server error" });
+  }
 };
 
 const loginMedecin = async (req, res) => {
