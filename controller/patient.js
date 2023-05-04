@@ -129,6 +129,7 @@ const getMaladiesDoctor = async (req, res) => {
 const reSendQr = async (req, res) => {
   try {
     let patient = {
+      _id: req.body.id,
       name: req.body.name,
       email: req.body.email,
       age: req.body.age,
@@ -149,10 +150,9 @@ const sendQr = async (patient, doctorname) => {
     expiresIn: "365d",
   });
 
-  console.log(patient);
   let token = new TokensPatient({
     token: refresh,
-    patientId: new ObjectId(patient.id),
+    patientId: new ObjectId(patient._id),
   });
 
   await client.bd().collection("tokensPatient").insertOne(token);

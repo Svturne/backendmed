@@ -21,8 +21,6 @@ const refreshPatient = async (req, res) => {
       return res.status(401).json({ message: "token invalide" });
     }
 
-    console.log(result.patientId);
-
     const user = await client
       .bd()
       .collection("patients")

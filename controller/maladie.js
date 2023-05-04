@@ -11,7 +11,7 @@ const addMaladie = async (req, res) => {
     });
 
     let result = await client.bd().collection("maladies").insertOne(maladie);
-    console.log("maladie added");
+
     res.status(200).json(result);
   } catch (error) {
     console.log("erreur in add maladie");

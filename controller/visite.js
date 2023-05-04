@@ -12,7 +12,7 @@ const addVisite = async (req, res) => {
     });
 
     let result = await client.bd().collection("visites").insertOne(visite);
-    console.log("Visite added");
+
     res.status(200).json(result);
   } catch (error) {
     console.log("erreur in add Visite");
@@ -35,7 +35,6 @@ const getVisiteList = async (req, res) => {
 };
 
 const uploadPicture = async (req, res) => {
-  console.log("Uploading picture");
   try {
     const id = ObjectId(req.params.id);
     await client
