@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const QRCode = require("qrcode");
 const transporter = require("../config/sendEmail");
 const TokensPatient = require("../model/TokensPatients");
+const { findOne } = require("../model/Visite");
 
 const getHtml = (qrimage, doctorname) => {
   return `<div>
@@ -128,7 +129,7 @@ const getMaladiesDoctor = async (req, res) => {
 const reSendQr = async (req, res) => {
   try {
     let patient = {
-      name: req.body.name, //TODO: Check ID
+      name: req.body.name,
       email: req.body.email,
       age: req.body.age,
       sexe: req.body.sexe,
@@ -148,6 +149,7 @@ const sendQr = async (patient, doctorname) => {
     expiresIn: "365d",
   });
 
+  console.log(patient);
   let token = new TokensPatient({
     token: refresh,
     patientId: new ObjectId(patient.id),
