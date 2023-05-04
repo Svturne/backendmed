@@ -132,7 +132,7 @@ const refreshToken = async (req, res) => {
     delete user["_id"];
 
     let accessToken = jwt.sign(user, process.env.ACCESSTOKEN, {
-      expiresIn: "10m",
+      expiresIn: "1m",
     });
     let refreshToken = jwt.sign(user, process.env.REFRESHTOKEN, {
       expiresIn: "7d",

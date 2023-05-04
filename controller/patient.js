@@ -41,7 +41,7 @@ const addPatient = async (req, res) => {
 
     await client.bd().collection("patients").insertOne(patient);
 
-    sendQr(patient, req.user.name);
+    sendQr(patient, req.user.name, res);
 
     res.status(200).json({ message: "patient created successfully" });
   } catch (error) {
@@ -136,8 +136,9 @@ const reSendQr = async (req, res) => {
       sexe: req.body.sexe,
       idMedecin: req.user.id,
     };
-    sendQr(patient);
-    res.status(200).json({ message: "code qr sended" });
+    const qrCode = await sendQr(patient, undefined, res);
+
+    res.status(200).json({ message: "code qr sended", qrCode });
   } catch (error) {
     console.log("erreur in reSendQr");
     console.log(error);
@@ -145,7 +146,7 @@ const reSendQr = async (req, res) => {
   }
 };
 
-const sendQr = async (patient, doctorname) => {
+const sendQr = async (patient, doctorname, res) => {
   const refresh = jwt.sign({ patient }, process.env.REFRESHTOKENPATIENT, {
     expiresIn: "365d",
   });
@@ -174,11 +175,14 @@ const sendQr = async (patient, doctorname) => {
     attachDataUrls: true,
     html: doctorname ? getHtml(qrImage, doctorname) : resendHtml(qrImage),
   };
+
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       return res.status(500).json({ message: "error in sending email" });
     }
   });
+
+  return url.href;
 };
 
 module.exports = {
