@@ -6,6 +6,7 @@ const generatePassword = require("generate-password");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const TokensMedecin = require("../model/TokensMedecin");
+const ip = require("ip");
 
 const getHtml = (email, password) => {
   return `<div>
@@ -203,6 +204,7 @@ const getProfileMedecin = async (req, res) => {
   try {
     const id = ObjectId(req.user.id);
     let result = await client.bd().collection("medecins").findOne({ _id: id });
+    console.log({ result });
     delete result.password;
     res.status(200).json(result);
   } catch (error) {
@@ -232,7 +234,15 @@ const logout = async (req, res) => {
 
 const uploadPicture = async (req, res) => {
   try {
+    const adresseIp = ip.address();
+    console.log({ adresseIp });
+
     const id = ObjectId(req.user.id);
+    console.log(
+      "Lien photo de profile:",
+      adresseIp + ":" + process.env.PORT + "/" + req.file.path
+    );
+
     let result = await client
       .bd()
       .collection("medecins")
@@ -241,7 +251,8 @@ const uploadPicture = async (req, res) => {
         {
           $set: {
             profilePicture:
-              process.env.IPADDRESS +
+              "http://" +
+              adresseIp +
               ":" +
               process.env.PORT +
               "/" +

@@ -1,6 +1,7 @@
 const Visite = require("../model/Visite");
 const client = require("../bd/connect");
 const { ObjectId } = require("mongodb");
+const ip = require("ip");
 
 const addVisite = async (req, res) => {
   try {
@@ -37,6 +38,7 @@ const getVisiteList = async (req, res) => {
 const uploadPicture = async (req, res) => {
   try {
     const id = ObjectId(req.params.id);
+    const adresseIp = ip.address();
     await client
       .bd()
       .collection("visites")
@@ -46,7 +48,8 @@ const uploadPicture = async (req, res) => {
           $push: {
             pictures: {
               uri:
-                process.env.IPADDRESS +
+                "http://" +
+                adresseIp +
                 ":" +
                 process.env.PORT +
                 "/" +
@@ -58,6 +61,7 @@ const uploadPicture = async (req, res) => {
         },
         { new: true }
       );
+
     res.status(200).json({ message: " Visite image uploaded successfully" });
   } catch (error) {
     console.log("Visite erreur in upload profile picture medecin");

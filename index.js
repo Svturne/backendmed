@@ -4,6 +4,7 @@ const routePatient = require("./route/patient");
 const routeMedecin = require("./route/medecin");
 const routeVisite = require("./route/visite");
 const routeMaladie = require("./route/maladie");
+const ip = require("ip");
 const routePatientOperation = require("./route/patientOperation");
 require("dotenv").config();
 
@@ -24,8 +25,13 @@ connecter("mongodb://127.0.0.1:27017/", (erreur) => {
     console.log("ERREUR CONNECTION BDD");
     process.exit(-1);
   } else {
-    console.log("Connection a la BDD");
+    const server = app.listen(process.env.PORT, () => {
+      const host = process.env.BASEURL;
+      const port = server.address().port;
+      console.log(`Serveur lancé sur ${host}:${port}`);
 
-    app.listen(process.env.PORT);
+      const adresseIp = ip.address();
+      console.log(`Adresse IP du serveur: ${adresseIp}`);
+    });
   }
 });
