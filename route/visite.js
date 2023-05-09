@@ -6,7 +6,6 @@ const {
   uploadPicture,
 } = require("../controller/visite");
 const { auth } = require("../middleware/medecin");
-const { isMedecinperm } = require("../middleware/patient");
 const router = express.Router();
 
 router.route("/visite").post(auth, addVisite);

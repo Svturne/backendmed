@@ -24,6 +24,8 @@ const medecinSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String,
+    default:
+      "https://www.shutterstock.com/image-photo/portrait-picture-indian-doctor-wearing-260nw-1205790922.jpg",
     required: true,
   },
   codeResetPassword: {

@@ -59,6 +59,22 @@ const deletePatient = async (req, res) => {
       .collection("patients")
       .deleteOne({ _id: id });
 
+    const maladies = await client
+      .bd()
+      .collection("maladies")
+      .find({ patientId: id });
+
+    const maladieResult = await maladies.toArray();
+    for (const maladie of maladieResult) {
+      const deleted = await client
+        .bd()
+        .collection("visites")
+        .deleteMany({ maladieId: maladie._id });
+      console.log(deleted);
+    }
+
+    await client.bd().collection("tokensPatient").deleteMany({ patientId: id });
+    await client.bd().collection("maladies").deleteMany({ patientId: id });
     res.status(200).json(result);
   } catch (error) {
     console.log("erreur delete patient");
