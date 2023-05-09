@@ -70,7 +70,6 @@ const deletePatient = async (req, res) => {
         .bd()
         .collection("visites")
         .deleteMany({ maladieId: maladie._id });
-      console.log(deleted);
     }
 
     await client.bd().collection("tokensPatient").deleteMany({ patientId: id });
