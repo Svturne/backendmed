@@ -35,6 +35,19 @@ const getVisiteList = async (req, res) => {
   }
 };
 
+const getVisitePicture = async (req, res) => {
+  try {
+    const id = ObjectId(req.params.id);
+    let result = client.bd().collection("visites").find({ _id: id });
+    const visitePicture = await result.toArray();
+    res.status(200).json(visitePicture);
+  } catch (error) {
+    console.log("erreur in get visite pictureq");
+    console.log(error);
+    res.status(500).json(error);
+  }
+};
+
 const uploadPicture = async (req, res) => {
   try {
     const id = ObjectId(req.params.id);
@@ -70,4 +83,4 @@ const uploadPicture = async (req, res) => {
   }
 };
 
-module.exports = { addVisite, getVisiteList, uploadPicture };
+module.exports = { addVisite, getVisiteList, uploadPicture, getVisitePicture };
